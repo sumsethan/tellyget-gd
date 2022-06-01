@@ -1,20 +1,13 @@
-import json
-from xml.dom import minidom
-
-import datetime
 import os
 import re
 from bs4 import BeautifulSoup
 
 
 class Guide:
-    def __init__(self, config, session, base_url, get_channels_data):
-        self.config = config
+    def __init__(self, args, session, base_url):
+        self.args = args
         self.session = session
         self.base_url = base_url
-        self.get_channels_data = get_channels_data
-        self.channel_filters = self.config['guide']['channel_filters'].encode('unicode_escape')
-        self.channel_filters = json.loads(self.channel_filters)
 
     def get_channels(self):
         response = self.session.post(self.base_url + '/EPG/jsp/getchannellistHWCTC.jsp')
@@ -40,14 +33,14 @@ class Guide:
         return channels
 
     def match_channel_filters(self, channel):
-        for channel_filter in self.channel_filters:
+        for channel_filter in self.args.filter:
             match = re.search(channel_filter, channel['ChannelName'])
             if match:
                 return True
         return False
 
     def remove_sd_candidate_channels(self, channels):
-        if not self.config['guide'].getboolean('remove_sd_candidate_channels'):
+        if self.args.all_channel:
             return 0
         channels_count = len(channels)
         channels[:] = [channel for channel in channels if not Guide.is_sd_candidate_channel(channel, channels)]
@@ -70,7 +63,7 @@ class Guide:
         return content
 
     def save_playlist(self, playlist):
-        path = self.config['guide']['playlist_path']
+        path = os.path.abspath(self.args.output)
         Guide.save_file(path, playlist)
         print(f'Playlist saved to {path}')
 

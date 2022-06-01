@@ -30,8 +30,6 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'tellyget=tellyget.tellyget:main',
-            'tellyget-config=tellyget.tellyget_config:main',
-            'tellyget-decrypt=tellyget.tellyget_decrypt:main'
         ]
     }
 )

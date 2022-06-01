@@ -1,58 +1,29 @@
-import sys
-import time
-
-import configparser
-import netifaces
-
 from tellyget.auth import Auth
 from tellyget.guide import Guide
-from tellyget.utils import command
 
+import argparse
 
-def usage():
-    print('Usage:')
-    print('\t\ttellyget -h')
-    print('\t\ttellyget <config_file>')
+parser = argparse.ArgumentParser(description='Generate iptv configs')
 
+parser.add_argument('-u', '--user', type=str, required=True, help='user name for login')
+parser.add_argument('-p', '--passwd', type=str, required=True, help='password for login')
+parser.add_argument('-m', '--mac', type=str, required=True, help='MAC of box')
+parser.add_argument('-d', '--device', type=str, default='', help='device id of box')
+parser.add_argument('-a', '--address', type=str, default='', help='IP address of box')
+parser.add_argument('-I', '--interface', type=str, help='interface of iptv')
+parser.add_argument('-U', '--authurl', type=str, default='http://eds.iptv.gd.cn:8082/EDS/jsp/AuthenticationURL', help='authenticate url')
+parser.add_argument('-o', '--output', type=str, default='iptv.m3u', help='m3u output path')
+parser.add_argument('-f', '--filter', nargs='+', default=['^\d+$'], help='channel filter')
+parser.add_argument('-A', '--all-channel', default=False, action='store_true', help='no filter sd channels')
 
-def get_config(file):
-    config = configparser.ConfigParser()
-    config.read(file)
-    # bring_up_iptv_logical_interface(config)
-    get_iptv_ip(config)
-    return config
-
-
-def bring_up_iptv_logical_interface(config):
-    iptv_logical_interface = config['device']['iptv_logical_interface']
-    print(f'Bringing up logical interface: {iptv_logical_interface}')
-    stdout = command.execute('ifup', iptv_logical_interface)
-    print(stdout, end='')
-    time.sleep(10)
-
-
-def get_iptv_ip(config):
-    iptv_interface = config['device']['iptv_interface']
-    iptv_ip = netifaces.ifaddresses(iptv_interface)[netifaces.AF_INET][0]['addr']
-    print('iptv_ip: ' + iptv_ip)
-    config['device']['iptv_ip'] = iptv_ip
 
 
 def main():
-    if len(sys.argv) != 2:
-        usage()
-        sys.exit(1)
-
-    if sys.argv[1] == '-h':
-        usage()
-        sys.exit()
-
-    config = get_config(sys.argv[1])
-    auth = Auth(config)
+    args = parser.parse_args()
+    print(args)
+    auth = Auth(args)
     auth.authenticate()
-
-    guide = Guide(config, auth.session, auth.base_url, auth.get_channels_data)
-
+    guide = Guide(args, auth.session, auth.base_url)
     channels = guide.get_channels()
 
     playlist = guide.get_playlist(channels)

@@ -1,9 +1,10 @@
 from tellyget.utils.cipher import Cipher
 
+import hashlib
 
 class Authenticator:
-    def __init__(self, key):
-        self.cipher = Cipher(key)
+    def __init__(self, passwd):
+        self.cipher = Cipher(hashlib.md5(passwd.encode()).hexdigest()[:24].upper())
 
     def build(self, token, user_id, stb_id, ip, mac):
         plain_text = '$'.join(['99999', token, user_id, stb_id, ip, mac, '', 'CTC'])
