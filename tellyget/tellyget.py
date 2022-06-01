@@ -54,9 +54,6 @@ def main():
     guide = Guide(config, auth.session, auth.base_url, auth.get_channels_data)
 
     channels = guide.get_channels()
-    # programmes = guide.get_programmes(channels)
 
     playlist = guide.get_playlist(channels)
     guide.save_playlist(playlist)
-    # xmltv = guide.get_xmltv(channels, programmes)
-    # guide.save_xmltv(xmltv)

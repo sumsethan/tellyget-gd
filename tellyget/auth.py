@@ -1,3 +1,4 @@
+import json
 import re
 import requests
 import socket
@@ -78,9 +79,6 @@ class Auth:
         return get_channel_list_data
 
     def get_token(self):
-        data = {'UserID': self.config['auth']['user_id'], 'VIP': self.config['auth']['vip']}
-        response = self.session.post(self.base_url + '/EPG/jsp/authLoginHWCTC.jsp', data=data)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        script = soup.find_all('script', string=re.compile('document.authform.userToken.value'))[0].string
-        match = re.search(r'document.authform.userToken.value\s*=\s*\"(.+?)\"', script, re.MULTILINE)
-        return match.group(1)
+        response = self.session.get(f'{self.base_url}/EPG/oauth/v2/authorize?response_type=EncryToken&client_id=smcphone&userid={self.config["auth"]["user_id"]}')
+        j = json.loads(response.text)
+        return j['EncryToken']
