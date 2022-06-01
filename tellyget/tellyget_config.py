@@ -20,9 +20,10 @@ def main():
 
     pcap_file = sys.argv[1]
     stb_mac = sys.argv[2]
-    config_file = sys.argv[3]
+    passwd = sys.argv[3]
+    config_file = sys.argv[4]
 
-    generator = Generator(pcap_file, stb_mac)
+    generator = Generator(pcap_file, stb_mac, passwd)
     generator.parse()
     generator.generate_config()
     generator.save_config(config_file)

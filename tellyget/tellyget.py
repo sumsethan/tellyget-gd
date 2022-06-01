@@ -18,7 +18,7 @@ def usage():
 def get_config(file):
     config = configparser.ConfigParser()
     config.read(file)
-    bring_up_iptv_logical_interface(config)
+    # bring_up_iptv_logical_interface(config)
     get_iptv_ip(config)
     return config
 
@@ -54,9 +54,9 @@ def main():
     guide = Guide(config, auth.session, auth.base_url, auth.get_channels_data)
 
     channels = guide.get_channels()
-    programmes = guide.get_programmes(channels)
+    # programmes = guide.get_programmes(channels)
 
     playlist = guide.get_playlist(channels)
     guide.save_playlist(playlist)
-    xmltv = guide.get_xmltv(channels, programmes)
-    guide.save_xmltv(xmltv)
+    # xmltv = guide.get_xmltv(channels, programmes)
+    # guide.save_xmltv(xmltv)

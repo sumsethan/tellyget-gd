@@ -19,7 +19,7 @@ class Guide:
     def get_channels(self):
         response = self.session.post(self.base_url + '/EPG/jsp/getchannellistHWCTC.jsp', data=self.get_channels_data)
         soup = BeautifulSoup(response.text, 'html.parser')
-        scripts = soup.find_all('script', string=re.compile('ChannelID=".+?"'))
+        scripts = soup.find_all('script', string=re.compile('ChannelID="[^"]+"'))
         print(f'Found {len(scripts)} channels')
         channels = []
         filtered_channels = 0
@@ -27,11 +27,8 @@ class Guide:
             match = re.search(r'Authentication.CTCSetConfig\(\'Channel\',\'(.+?)\'\)', script.string, re.MULTILINE)
             channel_params = match.group(1)
             channel = {}
-            for channel_param in channel_params.split(','):
-                pair = channel_param.split('=')
-                key = pair[0]
-                value = pair[1]
-                value = value[1:len(value) - 1]
+            for channel_param in channel_params.split('",'):
+                key, value = channel_param.split('="')
                 channel[key] = value
             if self.match_channel_filters(channel):
                 filtered_channels += 1
@@ -69,9 +66,6 @@ class Guide:
         for channel in channels:
             content += f"#EXTINF:-1 tvg-id=\"{channel['ChannelID']}\",{channel['ChannelName']}\n"
             channel_url = channel['ChannelURL']
-            match = re.search(r'.+?://(.+)', channel_url)
-            channel_url_prefix = self.config['guide']['channel_url_prefix']
-            channel_url = channel_url_prefix + match.group(1)
             content += f"{channel_url}\n"
         return content
 

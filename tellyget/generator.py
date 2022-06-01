@@ -6,10 +6,11 @@ from tellyget.tellyget_decrypt import find_encryption_keys
 
 
 class Generator:
-    def __init__(self, pcap_file, stb_mac):
+    def __init__(self, pcap_file, stb_mac, passwd):
         self.pcap_file = pcap_file
         self.tshark = TShark(pcap_file)
         self.stb_mac = stb_mac
+        self.passwd = passwd
         self.dhcp_request = None
         self.auth_url_request = None
         self.login_url_request = None
@@ -48,7 +49,7 @@ class Generator:
 
         config['auth']['user_id'] = unquote(login_data['UserID'][0])
         config['auth']['net_user_id'] = login_data['NetUserID'][0]
-        config['auth']['encryption_key'] = self.__find_encryption_key(login_data['Authenticator'][0])
+        config['auth']['encryption_key'] = self.__find_encryption_key(login_data['Authenticator'][0], self.passwd)
         config['auth']['user_group_id'] = login_data['userGroupId'][0]
         config['auth']['user_field'] = login_data['UserField'][0]
         config['auth']['vip'] = login_data['VIP'][0]
@@ -75,8 +76,8 @@ class Generator:
         config['guide'] = {}
 
         config['guide']['channel_url_prefix'] = 'http://000.000.000.000:4022/udp/'
-        config['guide']['playlist_path'] = '/etc/tellyget/playlist.m3u'
-        config['guide']['xmltv_path'] = '/etc/tellyget/xmltv.xml'
+        config['guide']['playlist_path'] = './playlist.m3u'
+        config['guide']['xmltv_path'] = './xmltv.xml'
         config['guide']['channel_filters'] = '["^\d+$"]'  # noqa: W605
         config['guide']['remove_sd_candidate_channels'] = 'True'
         config['guide']['remove_empty_programme_channels'] = 'True'
@@ -85,8 +86,8 @@ class Generator:
         self.config = config
 
     @staticmethod
-    def __find_encryption_key(authenticator):
-        return find_encryption_keys(authenticator)[0]
+    def __find_encryption_key(authenticator, passwd):
+        return find_encryption_keys(authenticator, passwd)
 
     def save_config(self, config_file):
         with open(config_file, 'w') as f:
