@@ -40,12 +40,12 @@ class Auth:
 
     def login(self):
         token = self.get_token()
-        authenticator = Authenticator(self.args.passwd).build(token, self.args.user, self.args.device, self.args.address, self.args.mac)
+        authenticator = Authenticator(self.args.passwd).build(token, self.args.user, self.args.imei, self.args.address, self.args.mac)
         params = {
             'client_id': 'smcphone',
-            'DeviceType': 'deviceVersion',
+            'DeviceType': 'deviceType',
             'UserID': self.args.user,
-            'DeviceVersion': 1,
+            'DeviceVersion': 'deviceVersion',
             'userdomain': 2,
             'datadomain': 3,
             'accountType': 1,

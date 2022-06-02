@@ -1,3 +1,4 @@
+from random import randint
 from tellyget.utils.cipher import Cipher
 
 import hashlib
@@ -7,7 +8,7 @@ class Authenticator:
         self.cipher = Cipher(hashlib.md5(passwd.encode()).hexdigest()[:24].upper())
 
     def build(self, token, user_id, stb_id, ip, mac):
-        plain_text = '$'.join(['99999', token, user_id, stb_id, ip, mac, '', 'CTC'])
+        plain_text = '$'.join([str(randint(0, 1e7)), token, user_id, stb_id, ip, mac, '', 'CTC'])
         return self.cipher.encrypt(plain_text)
 
     def parse(self, authenticator):
