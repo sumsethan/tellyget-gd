@@ -44,23 +44,30 @@ services:
 ​`python setup.py install`​
 
 ```shell
-# tellyget -h
+#tellyget -h
 
-usage: tellyget
-       [-h]
-       -u
-       USER
-       -p
-       PASSWD
-       -m
-       MAC
-       [-i IMEI]
-       [-a ADDRESS]
-       [-I INTERFACE]
-       [-U AUTHURL]
-       [-o OUTPUT]
-       [-f FILTER [FILTER ...]]
-       [-A]
+usage: tellyget [-h] -u USER -p PASSWD -m MAC [-i IMEI] [-a ADDRESS] [-I INTERFACE] [-U AUTHURL] [-o OUTPUT] [-f FILTER [FILTER ...]] [-A]
+
+Generate iptv configs
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -u USER, --user USER  user name for login
+  -p PASSWD, --passwd PASSWD
+                        password for login
+  -m MAC, --mac MAC     MAC of box
+  -i IMEI, --imei IMEI  imei of box
+  -a ADDRESS, --address ADDRESS
+                        IP address of box
+  -I INTERFACE, --interface INTERFACE
+                        interface of iptv
+  -U AUTHURL, --authurl AUTHURL
+                        authenticate url
+  -o OUTPUT, --output OUTPUT
+                        m3u output path
+  -f FILTER [FILTER ...], --filter FILTER [FILTER ...]
+                        channel filter
+  -A, --all-channel     no filter sd channels
 ```
 
 ### 3）获取直播源m3u播放列表
