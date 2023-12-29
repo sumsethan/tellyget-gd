@@ -1,3 +1,110 @@
+# tellyget-gd 使用记录
+
+​`tellyget`​ 是一个用于从运营商 IPTV 网络获取直播源 m3u播放列表跟 xmltv（epg节目表）的软件，使用 Python 脚本语言编写
+
+​`tellyget-gd`​ 是针对`广东电信`​地区的分支版本
+
+‍
+
+### 0）前期准备
+
+* 路由器配置好，接入 IPTV 内网（广东电信是拨号方式认证，账号密码可以电话问客服获取）
+* 设置好静态路由，`125.88.0.0/16`​ 与 `183.59.0.0/16`​ 网段分流到 IPTV 内网
+
+**实测 x64 架构的 unRAID NAS 系统，通过 Docker 跑 python:3.9-slim 容器可以正常部署安装**
+
+‍
+
+### 1）docker-compose 部署 Python3.9 容器，以安装 tellyget-gd
+
+```shell
+---
+version: "3"
+services:
+  tellyget:
+    image: python:3.9-slim
+    container_name: tellyget-gd
+    tty: true
+    volumes:
+      - ./workspace:/workspace
+    network_mode: host
+  restart: unless-stopped
+```
+
+‍
+
+### 2）tellyget-gd 安装
+
+1. 从项目主页：[https://github.com/yujincheng08/tellyget-gd](https://github.com/yujincheng08/tellyget-gd) 下载源码，解压到 Docker容器映射目录 内
+2. docker exec 命令进入容器内： `docker exec -it tellyget-gd bash`​
+3. cd 到源码目录，进行 tellyget-gd 的安装：
+
+​`cd /workspace/tellyget-gd-master/`​
+
+​`python setup.py install`​
+
+```shell
+# tellyget -h
+
+usage: tellyget
+       [-h]
+       -u
+       USER
+       -p
+       PASSWD
+       -m
+       MAC
+       [-i IMEI]
+       [-a ADDRESS]
+       [-I INTERFACE]
+       [-U AUTHURL]
+       [-o OUTPUT]
+       [-f FILTER [FILTER ...]]
+       [-A]
+```
+
+### 3）获取直播源m3u播放列表
+
+按实际填写命令参数，输出 m3u列表
+
+tellyget -u xxxxx(IPTV拨号账号删掉`@iptv.gd`​) -p xxxxx(IPTV拨号密码) -m XX:D8:F3:73:09:YY(IPTV机顶盒MAC地址)
+
+```shell
+tellyget -u 0758xxxxxxx -p xxxxx -m XX:D8:F3:73:09:YY
+
+Namespace(user='0758xxxxxxx', passwd='xxxxx', mac='XX:D8:F3:73:09:YY', imei='', address='', interface=None, authurl='http://eds.iptv.gd.cn:8082/EDS/jsp/AuthenticationURL', output='iptv.m3u', filter=['^\\d+$'], all_channel=False)
+base_url: http://125.88.80.41:8082
+Found 225 channels
+Filtered 0 channels
+Removed 39 SD candidate channels
+Playlist saved to /workspace/iptv.m3u
+```
+‍
+### 4）使用 sed 命令编辑处理获取到的 m3u 列表文件
+
+删除 igmp 组播源，只保留 rtsp 单播
+```shell
+sed 's/^igmp.*rtsp/rtsp/' iptv.m3u > rtsp.m3u
+```
+
+删除 zoneoffset=0 字段，解决播放时间错乱的问题
+```shell
+sed 's/zoneoffset=0&icpid/icpid/' -i rtsp.m3u
+```
+‍
+输出转换成 DIYP影音 app 可以识别的 txt 列表格式
+```shell
+sed 's/^#EXTINF.*,//' rtsp.m3u > diyp.txt
+sed ":a;$!N;s/\nrtsp/,rtsp/g;ba" -i diyp.txt
+```
+
+‍
+
+---
+
+以下是原项目的使用介绍
+---
+
 # TellyGet
 
 A toolset for fetching and updating m3u playlist and xmltv guide from the IPTV network.
