@@ -5,6 +5,11 @@
 ​`tellyget-gd`​ 是针对`广东电信`​地区的分支版本
 
 ‍
+添加Dockerfile 及 start.sh ，还需自行准备rearrange_m3u.py 对生成的M3U进行重归类重排；如不需要，在 start.sh 中删除相关内容即可。
+
+---
+以下为fork源的原说明
+---
 
 ### 0）前期准备
 
